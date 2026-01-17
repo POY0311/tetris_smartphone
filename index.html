@@ -1,279 +1,170 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Tetris (Mobile)</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tetris Mobile</title>
+
 <style>
-  :root{
-    --bg:#111;
-    --panel:#222;
-    --accent:#555;
-    --btn-bg:#333;
-    --btn-fg:#fff;
-  }
-  html,body{
-    height:100%;
-    margin:0;
-    background:var(--bg);
-    color:white;
-    font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",sans-serif;
-    -webkit-tap-highlight-color: transparent;
-  }
+body {
+  margin: 0;
+  background: #111;
+  color: white;
+  font-family: sans-serif;
+  touch-action: none;
+}
 
-  /* 전체 레이아웃: 세로(게임 위, 컨트롤 아래) */
-  .screen { display:none; height:100vh; width:100vw; box-sizing:border-box; }
-  .active { display:flex; }
-  .container {
-    display:flex;
-    flex-direction:column;
-    height:100%;
-    width:100%;
-    align-items:center;
-    justify-content:flex-start;
-  }
+.screen {
+  display: none;
+  height: 100vh;
+  flex-direction: column;
+}
+.active { display: flex; }
 
-  header {
-    width:100%;
-    padding:12px;
-    box-sizing:border-box;
-    text-align:center;
-    font-size:20px;
-    background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
-  }
+canvas {
+  background: black;
+  border: 2px solid #555;
+  width: 100%;
+  max-height: 60vh;
+}
 
-  /* 게임 영역: 위쪽, 캔버스가 반응형 */
-  .game-area {
-    flex: 1 1 auto;
-    width:100%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:8px;
-    box-sizing:border-box;
-  }
+button {
+  padding: 14px;
+  font-size: 18px;
+  margin: 6px;
+  border-radius: 10px;
+  border: none;
+  background: #333;
+  color: white;
+}
 
-  canvas {
-    background:black;
-    border-radius:8px;
-    border:2px solid var(--accent);
-    touch-action: none; /* 터치 제스처 방지 */
-    max-height: calc(100vh - 220px);
-    max-width: 100%;
-    display:block;
-  }
+button:active {
+  background: #555;
+}
 
-  /* 하단 컨트롤 영역 */
-  .controls {
-    width:100%;
-    padding:10px;
-    box-sizing:border-box;
-    background:linear-gradient(0deg, rgba(0,0,0,0.3), transparent);
-    display:flex;
-    align-items:center;
-    justify-content:space-around;
-    gap:10px;
-  }
+/* 메뉴 */
+#menu {
+  justify-content: center;
+  align-items: center;
+}
 
-  .controls .btn {
-    flex:1 1 0;
-    margin:0 6px;
-    background:var(--btn-bg);
-    color:var(--btn-fg);
-    border:0;
-    border-radius:12px;
-    padding:16px 8px;
-    font-size:20px;
-    box-shadow: 0 2px 0 rgba(0,0,0,0.4);
-    user-select:none;
-    -webkit-user-select:none;
-  }
-  .controls .btn:active { transform: translateY(1px); box-shadow:none; }
-  .controls .wide { flex:1.2 1 0; font-size:18px; }
+/* 게임 화면 */
+#game {
+  justify-content: space-between;
+}
 
-  /* 메뉴/설정 스타일 간소화 */
-  .menu, .settings {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:12px;
-    padding:20px;
-  }
-  button.menu-btn {
-    padding:12px 20px;
-    font-size:18px;
-    border-radius:10px;
-    border:0;
-    background:var(--btn-bg);
-    color:white;
-  }
+/* 터치 패드 */
+.controls {
+  height: 40vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 10px;
+  padding: 10px;
+}
 
-  .overlay {
-    position:absolute;
-    inset:0;
-    background:rgba(0,0,0,0.7);
-    display:none;
-    justify-content:center;
-    align-items:center;
-  }
-  .overlay.active { display:flex; }
-  .modal {
-    background:var(--panel);
-    padding:20px;
-    border-radius:10px;
-    text-align:center;
-  }
+.controls button {
+  font-size: 24px;
+}
 
-  /* 작은 화면에서 버튼을 크게 */
-  @media (max-width:420px){
-    .controls .btn { padding:18px 8px; font-size:22px; border-radius:14px; }
-  }
+.rotate {
+  grid-column: 2;
+}
+
+.left {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.down {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.right {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+/* 게임 오버 */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+.overlay.active { display: flex; }
+
+.modal {
+  background: #222;
+  padding: 30px;
+  border-radius: 10px;
+  text-align: center;
+}
 </style>
 </head>
+
 <body>
 
-<!-- 메인 메뉴 -->
+<!-- 메뉴 -->
 <div id="menu" class="screen active">
-  <div class="container menu">
-    <header><strong>테트리스 (모바일)</strong></header>
-    <h1 style="margin:0">테트리스</h1>
-    <div style="display:flex;gap:10px;">
-      <button class="menu-btn" onclick="startGame()">시작하기</button>
-      <button class="menu-btn" onclick="openSettings()">설정</button>
-    </div>
-    <p style="opacity:0.8">하단 버튼: ◀ 왼쪽 / ▲ 회전 / ▶ 오른쪽 / ⤓ 바로 내리기</p>
-  </div>
+  <h1>테트리스</h1>
+  <button onclick="startGame()">시작하기</button>
 </div>
 
-<!-- 게임 화면 -->
+<!-- 게임 -->
 <div id="game" class="screen">
-  <div class="container" style="position:relative;">
-    <header>
-      <div style="display:flex;align-items:center;justify-content:space-between;">
-        <div style="padding-left:8px;"><button onclick="backToMenu()" style="background:none;border:0;color:white;font-size:18px">← 뒤로</button></div>
-        <div>테트리스</div>
-        <div style="width:48px"></div>
-      </div>
-    </header>
+  <canvas id="tetris" width="240" height="400"></canvas>
 
-    <div class="game-area">
-      <canvas id="tetris" width="240" height="400" aria-label="Tetris game canvas"></canvas>
-
-      <!-- 게임 오버 -->
-      <div id="gameOver" class="overlay" aria-hidden="true" role="dialog">
-        <div class="modal">
-          <h2>Game Over</h2>
-          <div style="display:flex;gap:8px;justify-content:center;margin-top:10px">
-            <button class="menu-btn" onclick="restart()">다시 하기</button>
-            <button class="menu-btn" onclick="backToMenu()">메인 화면</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 하단 터치 컨트롤 -->
-    <div class="controls" id="controls" role="toolbar" aria-label="game controls">
-      <button id="btn-left" class="btn" aria-label="왼쪽">◀</button>
-      <button id="btn-rotate" class="btn" aria-label="회전">▲</button>
-      <button id="btn-right" class="btn" aria-label="오른쪽">▶</button>
-      <button id="btn-drop" class="btn wide" aria-label="바로내리기">⤓</button>
-    </div>
+  <!-- 터치 컨트롤 -->
+  <div class="controls">
+    <button class="rotate">↑</button>
+    <button class="left">←</button>
+    <button class="down">↓</button>
+    <button class="right">→</button>
   </div>
-</div>
 
-<!-- 설정 -->
-<div id="settings" class="screen settings">
-  <div style="width:100%;max-width:520px;">
-    <button class="back-btn" onclick="backToMenu()" style="background:none;border:0;color:white;font-size:18px">← 뒤로</button>
-    <h2>키 설정</h2>
-    <div>왼쪽 <button onclick="setKey('left')" id="leftKey"></button></div>
-    <div>오른쪽 <button onclick="setKey('right')" id="rightKey"></button></div>
-    <div>아래 <button onclick="setKey('down')" id="downKey"></button></div>
-    <div>회전 <button onclick="setKey('rotate')" id="rotateKey"></button></div>
-    <div>하드드롭 <button onclick="setKey('drop')" id="dropKey"></button></div>
+  <div id="gameOver" class="overlay">
+    <div class="modal">
+      <h2>Game Over</h2>
+      <button onclick="restart()">다시 하기</button>
+      <button onclick="backToMenu()">메인 화면</button>
+    </div>
   </div>
 </div>
 
 <script>
-/* ===== 화면 제어 ===== */
+/* ===== 화면 ===== */
 const menu = document.getElementById('menu');
 const gameScreen = document.getElementById('game');
-const settingsScreen = document.getElementById('settings');
 const gameOverUI = document.getElementById('gameOver');
 
 const show = s => {
-  [menu, gameScreen, settingsScreen].forEach(v => v.classList.remove('active'));
+  [menu, gameScreen].forEach(v => v.classList.remove('active'));
   s.classList.add('active');
 };
 
 const startGame = () => { resetGame(); show(gameScreen); };
-const openSettings = () => { updateKeyUI(); show(settingsScreen); };
 const backToMenu = () => { gameOverUI.classList.remove('active'); show(menu); };
 const restart = () => { gameOverUI.classList.remove('active'); resetGame(); };
 
-/* ===== 키 설정 (기존 유지) ===== */
-const keys = { left:'ArrowLeft', right:'ArrowRight', down:'ArrowDown', rotate:'ArrowUp', drop:'Space' };
-let waitKey = null;
-
-const setKey = k => { waitKey = k; alert('키를 누르세요'); };
-
-document.addEventListener('keydown', e => {
-  if (waitKey) {
-    keys[waitKey] = e.code;
-    waitKey = null;
-    updateKeyUI();
-    return;
-  }
-  handleInput(e);
-});
-
-const updateKeyUI = () => {
-  leftKey.textContent = keys.left;
-  rightKey.textContent = keys.right;
-  downKey.textContent = keys.down;
-  rotateKey.textContent = keys.rotate;
-  dropKey.textContent = keys.drop;
-};
-
-/* ===== 테트리스 로직 (원본 기반, 일부 리팩토링) ===== */
+/* ===== 테트리스 ===== */
 const canvas = document.getElementById('tetris');
 const ctx = canvas.getContext('2d');
+ctx.scale(20,20);
 
-const ROWS = 20, COLS = 12;
+const ROWS=20, COLS=12;
 let arena, player, gameOver=false;
 let dropInterval=700, dropCounter=0, lastTime=0;
 
-/* 파스텔 색상 */
 const colors = [
   null,
-  '#FFB3C6', // I
-  '#BDE0FE', // O
-  '#CDB4DB', // T
-  '#A0E7E5', // L
-  '#B9FBC0', // J
-  '#FFD6A5', // S
-  '#FFC8DD', // Z
-  '#FFFFFF'  // flash
+  '#FFB3C6','#BDE0FE','#CDB4DB','#A0E7E5',
+  '#B9FBC0','#FFD6A5','#FFC8DD','#FFFFFF'
 ];
 
-/* 캔버스/픽셀 크기 동적 조정 (화면 너비에 맞춤) */
-function resizeCanvas(){
-  // 좌우 여백을 16~24px 확보
-  const padding = 16;
-  const availableWidth = Math.max(200, window.innerWidth - padding);
-  // 블록 사이즈는 정수 픽셀
-  const block = Math.max(8, Math.floor(availableWidth / COLS));
-  canvas.width = COLS * block;
-  canvas.height = ROWS * block;
-  // setTransform으로 픽셀 스케일링 적용 (기존 ctx.scale 사용 대신)
-  ctx.setTransform(block, 0, 0, block, 0, 0);
-  draw();
-}
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-
-/* 기본 게임 함수들 */
 function resetGame(){
   arena = Array.from({length:ROWS},()=>Array(COLS).fill(0));
   player = { pos:{x:5,y:0}, matrix:null };
@@ -284,7 +175,7 @@ function resetGame(){
 function spawn(){
   const p='ILJOTSZ';
   player.matrix = createPiece(p[Math.random()*7|0]);
-  player.pos = {x:Math.floor((COLS - player.matrix[0].length)/2), y:0};
+  player.pos = {x:5,y:0};
   if (collide()) endGame();
 }
 
@@ -304,9 +195,8 @@ function createPiece(t){
 }
 
 function collide(){
-  if(!player.matrix) return false;
   return player.matrix.some((r,y)=>
-    r.some((v,x)=>v && (arena[y+player.pos.y]?.[x+player.pos.x] ?? 0) !== 0)
+    r.some((v,x)=>v && arena[y+player.pos.y]?.[x+player.pos.x]!==0)
   );
 }
 
@@ -317,27 +207,17 @@ function merge(){
 }
 
 function clearLines(){
-  let rows=[];
-  arena.forEach((r,y)=>{ if(r.every(v=>v)) rows.push(y); });
-  if(!rows.length) return;
-
-  rows.sort((a,b)=>b-a); // 위에서 아래로 제거하면 인덱스 혼동 없음
-
-  let flash=0;
-  const anim=setInterval(()=>{
-    rows.forEach(y=>arena[y].fill(flash%2?8:0));
-    flash++;
-    if(flash===4){
-      clearInterval(anim);
-      rows.forEach(y=>arena.splice(y,1));
-      while(arena.length<ROWS) arena.unshift(Array(COLS).fill(0));
+  for(let y=arena.length-1;y>=0;y--){
+    if(arena[y].every(v=>v)){
+      arena.splice(y,1);
+      arena.unshift(Array(COLS).fill(0));
+      y++;
     }
-  },100);
+  }
 }
 
 function rotate(){
   const m = player.matrix;
-  // 시계 방향 회전
   player.matrix = m[0].map((_,i)=>m.map(r=>r[i]).reverse());
   if (collide()) player.matrix = m;
 }
@@ -352,43 +232,17 @@ function drop(){
   }
 }
 
-function handleInput(e){
-  if(!gameScreen.classList.contains('active') || gameOver) return;
-  if(e.code===keys.left){ player.pos.x--; if(collide()) player.pos.x++; }
-  if(e.code===keys.right){ player.pos.x++; if(collide()) player.pos.x--; }
-  if(e.code===keys.down) drop();
-  if(e.code===keys.rotate) rotate();
-  if(e.code===keys.drop){
-    while(!collide()) player.pos.y++;
-    player.pos.y--; drop();
-  }
-}
-}
-
-/* 그리기 */
 function draw(){
-  // 배경 전체 픽셀 단위로 지운다 (캔버스 transform 했으므로 실제 픽셀 크기를 계산)
-  const w = canvas.width / (ctx.getTransform().a || 1);
-  const h = canvas.height / (ctx.getTransform().d || 1);
-  ctx.save();
-  ctx.setTransform(1,0,0,1,0,0); // 일시적으로 원래 픽셀 스케일로 되돌려서 클리어
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.restore();
-
-  // arena
-  ctx.fillStyle = '#000';
-  ctx.fillRect(0,0,w,h);
-
+  ctx.fillStyle='#000';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
   arena.forEach((r,y)=>r.forEach((v,x)=>{
     if(v){ ctx.fillStyle=colors[v]; ctx.fillRect(x,y,1,1); }
   }));
-  if(player.matrix)
-    player.matrix.forEach((r,y)=>r.forEach((v,x)=>{
-      if(v){ ctx.fillStyle=colors[v]; ctx.fillRect(x+player.pos.x,y+player.pos.y,1,1); }
-    }));
+  player.matrix.forEach((r,y)=>r.forEach((v,x)=>{
+    if(v){ ctx.fillStyle=colors[v]; ctx.fillRect(x+player.pos.x,y+player.pos.y,1,1); }
+  }));
 }
 
-/* 메인 루프 */
 function update(t=0){
   const delta=t-lastTime;
   lastTime=t;
@@ -400,89 +254,14 @@ function update(t=0){
   requestAnimationFrame(update);
 }
 
-/* 초기화와 루프 시작 */
+/* ===== 터치 컨트롤 ===== */
+document.querySelector('.left').ontouchstart = ()=>{ player.pos.x--; if(collide()) player.pos.x++; };
+document.querySelector('.right').ontouchstart = ()=>{ player.pos.x++; if(collide()) player.pos.x--; };
+document.querySelector('.down').ontouchstart = ()=> drop();
+document.querySelector('.rotate').ontouchstart = ()=> rotate();
+
 resetGame();
 update();
-
-/* ===== 터치/버튼 컨트롤 (모바일용) ===== */
-const btnLeft = document.getElementById('btn-left');
-const btnRight = document.getElementById('btn-right');
-const btnRotate = document.getElementById('btn-rotate');
-const btnDrop = document.getElementById('btn-drop');
-
-let holdTimeout = null;
-let holdInterval = null;
-
-function actionLeft(){
-  if(!gameScreen.classList.contains('active') || gameOver) return;
-  player.pos.x--;
-  if(collide()) player.pos.x++;
-  draw();
-}
-function actionRight(){
-  if(!gameScreen.classList.contains('active') || gameOver) return;
-  player.pos.x++;
-  if(collide()) player.pos.x--;
-  draw();
-}
-function actionRotate(){
-  if(!gameScreen.classList.contains('active') || gameOver) return;
-  rotate();
-  draw();
-}
-function actionDrop(){
-  if(!gameScreen.classList.contains('active') || gameOver) return;
-  while(!collide()) player.pos.y++;
-  player.pos.y--;
-  drop();
-  draw();
-}
-
-function startHold(action){
-  // 즉시 한 번 실행
-  action();
-  // 짧은 지연 후 반복 (자동 이동)
-  holdTimeout = setTimeout(()=> {
-    holdInterval = setInterval(action, 100);
-  }, 220);
-}
-function stopHold(){
-  if(holdTimeout){ clearTimeout(holdTimeout); holdTimeout=null; }
-  if(holdInterval){ clearInterval(holdInterval); holdInterval=null; }
-}
-
-/* 공통 이벤트 바인딩 (터치/마우스) */
-function bindHoldButton(el, action){
-  // 터치(모바일)
-  el.addEventListener('touchstart', e=>{ e.preventDefault(); startHold(action); }, {passive:false});
-  el.addEventListener('touchend', e=>{ e.preventDefault(); stopHold(); }, {passive:false});
-  el.addEventListener('touchcancel', e=>{ stopHold(); }, {passive:false});
-  // 마우스(데스크탑)
-  el.addEventListener('mousedown', e=>{ e.preventDefault(); startHold(action); });
-  document.addEventListener('mouseup', e=>{ stopHold(); });
-  // 클릭에도 동작 (단발)
-  el.addEventListener('click', e=>{ e.preventDefault(); action(); });
-}
-
-/* 회전/하드드롭은 홀드가 아닌 단발 실행만 충분하므로 별도 처리 */
-bindHoldButton(btnLeft, actionLeft);
-bindHoldButton(btnRight, actionRight);
-
-btnRotate.addEventListener('touchstart', e=>{ e.preventDefault(); actionRotate(); }, {passive:false});
-btnRotate.addEventListener('mousedown', e=>{ e.preventDefault(); actionRotate(); });
-btnRotate.addEventListener('click', e=>{ e.preventDefault(); actionRotate(); });
-
-btnDrop.addEventListener('touchstart', e=>{ e.preventDefault(); actionDrop(); }, {passive:false});
-btnDrop.addEventListener('mousedown', e=>{ e.preventDefault(); actionDrop(); });
-btnDrop.addEventListener('click', e=>{ e.preventDefault(); actionDrop(); });
-
-/* prevent gesture scrolling while touching the control area */
-const controlsEl = document.getElementById('controls');
-controlsEl.addEventListener('touchmove', e=>{ e.preventDefault(); }, {passive:false});
-
-/* 초기화 UI 업데이트 */
-updateKeyUI();
-
 </script>
 </body>
 </html>
